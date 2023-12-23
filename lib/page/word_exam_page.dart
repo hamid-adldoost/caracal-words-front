@@ -1,3 +1,4 @@
+import 'package:caracal_words/main.dart';
 import 'package:caracal_words/widget/word_exam_unit_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -8,8 +9,30 @@ class WordExamUnit extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Word Exam',
+        title: Row(
+          children: [
+            const Expanded(
+              flex: 6,
+              child: Text(
+                'Word Exam',
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: GestureDetector(
+                child: const Icon(Icons.exit_to_app),
+                onTap: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const MyApp();
+                      },
+                    ),
+                  );
+                },
+              ),
+            )
+          ],
         ),
       ),
       body: const WordExamUnitWidget(),
