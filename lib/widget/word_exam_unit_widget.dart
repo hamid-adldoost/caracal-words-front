@@ -1,5 +1,6 @@
 import 'package:caracal_words/model/word_exam_item_service.dart';
 import 'package:caracal_words/provider/exam_unit_provider.dart';
+import 'package:caracal_words/service/submit-exam-result.dart';
 import 'package:caracal_words/widget/word_exam_choice.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,22 +14,42 @@ class WordExamUnitWidget extends StatefulWidget {
 
 class _WordExamUnitWidgetState extends State<WordExamUnitWidget> {
   late Future<WordExamItem> wordExamItem;
+  int examIndex = 0;
 
   @override
   void initState() {
-    print('123');
     super.initState();
-    wordExamItem = fetchRandomWordExamItem();
-    print('456' + wordExamItem.toString());
+    wordExamItem = fetchRandomWordExamItem(
+      context.read<ExamUnitProvider>().userWordSourceId,
+      examIndex,
+    );
   }
 
-  reloadExamUnit() {
-    wordExamItem = fetchRandomWordExamItem();
+  submitResultAndFetchNextExamItem(
+      String userWordSourceId, String wordId, bool result) {
+    submitLearningBoxExamResult(SubmitLearningBoxExamResultRequest(
+            userWordSource: userWordSourceId, wordId: wordId, result: result))
+        .then((value) => context.read<ExamUnitProvider>().learningBoxSize =
+            value.learningBoxSize);
+    examIndex++;
+    if (examIndex >= context.read<ExamUnitProvider>().learningBoxSize) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('learning finished'),
+        showCloseIcon: true,
+      ));
+    }
+    wordExamItem = fetchRandomWordExamItem(
+      context.read<ExamUnitProvider>().userWordSourceId,
+      examIndex,
+    );
     context.read<ExamUnitProvider>().setStatus(0);
   }
 
   @override
   Widget build(BuildContext context) {
+    var examUnitResult = context.watch<ExamUnitProvider>().result;
+    var userWordSourceId = context.watch<ExamUnitProvider>().userWordSourceId;
+
     return FutureBuilder(
       future: wordExamItem,
       builder: ((context, snapshot) {
@@ -38,6 +59,7 @@ class _WordExamUnitWidgetState extends State<WordExamUnitWidget> {
 
         final examItem = snapshot.data!;
         context.read<ExamUnitProvider>().setWordExamItem(examItem);
+        context.read<ExamUnitProvider>().setExamIndex(examIndex);
 
         return SingleChildScrollView(
           scrollDirection: Axis.vertical,
@@ -148,7 +170,11 @@ class _WordExamUnitWidgetState extends State<WordExamUnitWidget> {
               TextButton(
                 onPressed: () {
                   setState(() {
-                    reloadExamUnit();
+                    submitResultAndFetchNextExamItem(
+                      userWordSourceId,
+                      examItem.wordId,
+                      examUnitResult,
+                    );
                   });
                 },
                 child: Row(

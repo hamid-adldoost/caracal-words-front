@@ -55,8 +55,10 @@ class _WordExamChoiceState extends State<WordExamChoice> {
         setState(() {
           if (widget.choiceValue == correctValue) {
             choiceMode = 1;
+            context.read<ExamUnitProvider>().setResult(true);
           } else {
             choiceMode = 2;
+            context.read<ExamUnitProvider>().setResult(true);
           }
         });
         context.read<ExamUnitProvider>().setStatus(1);
