@@ -1,16 +1,24 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:caracal_words/provider/exam_unit_provider.dart';
+import 'package:caracal_words/service/id_repository.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
-Future<SubmitLearningBoxExamResultResponse> submitLearningBoxExamResult(SubmitLearningBoxExamResultRequest request) async {
+Future<SubmitLearningBoxExamResultResponse> submitLearningBoxExamResult(
+    SubmitLearningBoxExamResultRequest request) async {
+  Map<String, String> requestHeaders = {
+    'Content-type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': await getToken()
+  };
+
   final response = await http.post(
-    Uri.parse('http://localhost:8080/caracal-words/caracal-words/submit-learning-box-exam-result'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
+    headers: requestHeaders,
+    Uri.parse(
+        'http://localhost:8080/caracal-words/submit-learning-box-exam-result'),
     body: jsonEncode(<String, String>{
-      'userWordSource': request.userWordSource,
+      'userWordSourceId': request.userWordSource,
       'wordId': request.wordId,
       'result': request.result.toString()
     }),
@@ -21,7 +29,6 @@ Future<SubmitLearningBoxExamResultResponse> submitLearningBoxExamResult(SubmitLe
     // then parse the JSON.
     return SubmitLearningBoxExamResultResponse.fromJson(
         jsonDecode(response.body) as Map<String, dynamic>);
-    
   } else {
     // If the server did not return a 200 services response,
     // then throw an exception.
@@ -48,9 +55,10 @@ class SubmitLearningBoxExamResultResponse {
     required this.learningBoxSize,
   });
 
-  factory SubmitLearningBoxExamResultResponse.fromJson(Map<String, dynamic> json) {
+  factory SubmitLearningBoxExamResultResponse.fromJson(
+      Map<String, dynamic> json) {
     return SubmitLearningBoxExamResultResponse(
-      learningBoxSize: json['learningBox'](),
+      learningBoxSize: json['learningBoxSize'] as int,
     );
   }
 }

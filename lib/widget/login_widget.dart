@@ -3,7 +3,7 @@ import 'package:caracal_words/service/login_service.dart';
 import 'package:flutter/material.dart';
 
 class LoginWidget extends StatefulWidget {
-  LoginWidget({super.key});
+  const LoginWidget({super.key});
 
   @override
   State<LoginWidget> createState() => _LoginWidgetState();
@@ -67,14 +67,16 @@ class _LoginWidgetState extends State<LoginWidget> {
                     ),
                     onPressed: () {
                       print('login...');
-                      login(LoginRequest(username: username, password: password));
-                      Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return const WordExamUnit();
-                        },
-                      ),
-                    );
+                      login(LoginRequest(
+                              username: username, password: password))
+                          .then(
+                              (value) => Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return const WordExamUnit();
+                                      },
+                                    ),
+                                  ));
                     },
                   ),
                 ),

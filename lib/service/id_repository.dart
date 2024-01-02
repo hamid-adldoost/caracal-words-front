@@ -8,7 +8,10 @@ saveToken(String token) async {
   await prefs.setString('token', token);
 }
 
-getToken() async {
+Future<String> getToken() async {
+  print('getting token..');
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  return prefs.getString('token');
+  print('fetched token is: ' + prefs.getString('token').toString());
+
+  return Future<String>.value(prefs.getString('token'));
 }

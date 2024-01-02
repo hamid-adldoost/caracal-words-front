@@ -1,4 +1,6 @@
 import 'package:caracal_words/provider/exam_unit_provider.dart';
+import 'package:caracal_words/service/submit-exam-result.dart';
+import 'package:caracal_words/service/word_exam_item_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -16,52 +18,62 @@ class WordExamChoice extends StatefulWidget {
 }
 
 class _WordExamChoiceState extends State<WordExamChoice> {
-  String correctValue = '';
+  late String correctValue;
+  late int examUnitStatus;
+  late WordExamItem examItem;
   final choiceModeValues = [
     0, //not choosen
     1, //choosen
     2, //wrong choosen
   ];
-  late int choiceMode;
+  // late int choiceMode;
 
   @override
   void initState() {
-    choiceMode = 0;
     super.initState();
   }
 
-  Color setChoiceColor(var examUnistStatus) {
-    if (examUnistStatus == 1) {
-      if (choiceMode == 0) {
-        return Colors.grey;
-      } else if (choiceMode == 1) {
-        return Colors.lightGreen;
-      } else {
-        return const Color.fromRGBO(180, 10, 20, 1);
-      }
+  Color setChoiceColor() {
+    if (examUnitStatus == 0) {
+      return Colors.grey;
     } else {
-      return Colors.blueGrey;
+      if (widget.choiceValue == correctValue) {
+        return Colors.lightGreen;
+      } else if (widget.choiceValue ==
+          context.read<ExamUnitProvider>().selectedChoiceValue) {
+        return Colors.red;
+      } else {
+        return Colors.grey;
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    var examUnitStatus = context.watch<ExamUnitProvider>().examUnitStatus;
+    examItem = context.watch<ExamUnitProvider>().examItem;
+    examUnitStatus = context.watch<ExamUnitProvider>().examUnitStatus;
     correctValue =
         context.read<ExamUnitProvider>().examItem.destinationLanguageMeaning;
 
     return GestureDetector(
       onTap: () {
-        setState(() {
+        if (context.read<ExamUnitProvider>().examUnitStatus == 0) {
+          context
+              .read<ExamUnitProvider>()
+              .setSelectedChoiceValue(widget.choiceValue);
           if (widget.choiceValue == correctValue) {
-            choiceMode = 1;
-            context.read<ExamUnitProvider>().setResult(true);
-          } else {
-            choiceMode = 2;
             context.read<ExamUnitProvider>().setResult(true);
           }
-        });
-        context.read<ExamUnitProvider>().setStatus(1);
+          context.read<ExamUnitProvider>().setStatus(1);
+          submitLearningBoxExamResult(SubmitLearningBoxExamResultRequest(
+            userWordSource: context.read<ExamUnitProvider>().userWordSourceId,
+            wordId: examItem.wordId,
+            result: context.read<ExamUnitProvider>().result,
+          )).then((value) => {
+                context.read<ExamUnitProvider>().learningBoxSize =
+                    value.learningBoxSize,
+              });
+        }
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
@@ -75,7 +87,7 @@ class _WordExamChoiceState extends State<WordExamChoice> {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: setChoiceColor(examUnitStatus),
+                    color: setChoiceColor(),
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Text(

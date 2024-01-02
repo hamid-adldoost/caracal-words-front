@@ -1,9 +1,13 @@
-import 'package:caracal_words/model/word_exam_item_service.dart';
+import 'package:caracal_words/service/word_exam_item_service.dart';
 import 'package:caracal_words/provider/exam_unit_provider.dart';
-import 'package:caracal_words/service/submit-exam-result.dart';
+import 'package:caracal_words/widget/exam_passed.dart';
 import 'package:caracal_words/widget/word_exam_choice.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
+import 'dart:math';
 
 class WordExamUnitWidget extends StatefulWidget {
   const WordExamUnitWidget({super.key});
@@ -14,42 +18,46 @@ class WordExamUnitWidget extends StatefulWidget {
 
 class _WordExamUnitWidgetState extends State<WordExamUnitWidget> {
   late Future<WordExamItem> wordExamItem;
-  int examIndex = 0;
-
   @override
   void initState() {
     super.initState();
-    wordExamItem = fetchRandomWordExamItem(
+    wordExamItem = wordExamItem = fetchWordFromLearningBox(
       context.read<ExamUnitProvider>().userWordSourceId,
-      examIndex,
+      0,
     );
   }
 
-  submitResultAndFetchNextExamItem(
-      String userWordSourceId, String wordId, bool result) {
-    submitLearningBoxExamResult(SubmitLearningBoxExamResultRequest(
-            userWordSource: userWordSourceId, wordId: wordId, result: result))
-        .then((value) => context.read<ExamUnitProvider>().learningBoxSize =
-            value.learningBoxSize);
-    examIndex++;
-    if (examIndex >= context.read<ExamUnitProvider>().learningBoxSize) {
+  fetchNextExamItem() {
+    context.read<ExamUnitProvider>().setStatus(0);
+    if (context.read<ExamUnitProvider>().examIndex + 1 <
+        context.read<ExamUnitProvider>().learningBoxSize) {
+      context.read<ExamUnitProvider>().increaseExamIndex();
+      wordExamItem = fetchWordFromLearningBox(
+        context.read<ExamUnitProvider>().userWordSourceId,
+        context.read<ExamUnitProvider>().examIndex,
+      );
+    } else {
+      print('finished the learning box');
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('learning finished'),
         showCloseIcon: true,
       ));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) {
+          return const ExamPassedWidget();
+        },
+      ));
+      return;
     }
-    wordExamItem = fetchRandomWordExamItem(
-      context.read<ExamUnitProvider>().userWordSourceId,
-      examIndex,
-    );
-    context.read<ExamUnitProvider>().setStatus(0);
   }
 
   @override
   Widget build(BuildContext context) {
-    var examUnitResult = context.watch<ExamUnitProvider>().result;
-    var userWordSourceId = context.watch<ExamUnitProvider>().userWordSourceId;
-
+    context.watch<ExamUnitProvider>();
+    print(
+        'exam index ' + context.read<ExamUnitProvider>().examIndex.toString());
+    print('learning box size ' +
+        context.read<ExamUnitProvider>().learningBoxSize.toString());
     return FutureBuilder(
       future: wordExamItem,
       builder: ((context, snapshot) {
@@ -58,15 +66,33 @@ class _WordExamUnitWidgetState extends State<WordExamUnitWidget> {
         }
 
         final examItem = snapshot.data!;
+        context
+            .read<ExamUnitProvider>()
+            .setLearningBoxSize(examItem.learningBoxSize);
         context.read<ExamUnitProvider>().setWordExamItem(examItem);
-        context.read<ExamUnitProvider>().setExamIndex(examIndex);
-
         return SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+                child: LinearPercentIndicator(
+                  center: Text(
+                    '${context.read<ExamUnitProvider>().examIndex + 1}/${context.read<ExamUnitProvider>().learningBoxSize}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                    ),
+                  ),
+                  percent: ((context.read<ExamUnitProvider>().examIndex + 1) /
+                      context.read<ExamUnitProvider>().learningBoxSize),
+                  backgroundColor: Colors.blueGrey,
+                  lineHeight: 15,
+                  progressColor: Colors.green,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -87,6 +113,21 @@ class _WordExamUnitWidgetState extends State<WordExamUnitWidget> {
                                 style: const TextStyle(
                                   fontSize: 36,
                                 ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  LinearPercentIndicator(
+                                    percent: (max(examItem.score, 0) / 10),
+                                    progressColor: Colors.greenAccent,
+                                    backgroundColor: Colors.white,
+                                    width: 150,
+                                    lineHeight: 20,
+                                    center: Text(
+                                      "${'score : ${examItem.score}'} / 10",
+                                    ),
+                                  ),
+                                ],
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(top: 8),
@@ -169,13 +210,7 @@ class _WordExamUnitWidgetState extends State<WordExamUnitWidget> {
               ),
               TextButton(
                 onPressed: () {
-                  setState(() {
-                    submitResultAndFetchNextExamItem(
-                      userWordSourceId,
-                      examItem.wordId,
-                      examUnitResult,
-                    );
-                  });
+                  fetchNextExamItem();
                 },
                 child: Row(
                   children: [
