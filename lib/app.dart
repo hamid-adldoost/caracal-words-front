@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
       defaultTransition: Transition.fade,
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        useMaterial3: true,
       ),
       initialRoute: AppRoutes.Splash,
       getPages: AppPages.pages,
