@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:caracal_words/provider/exam_unit_provider.dart';
-import 'package:caracal_words/service/id_repository.dart';
+import 'package:caracal_words/utility/id_repository.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 
 Future<SubmitLearningBoxExamResultResponse> submitLearningBoxExamResult(
     SubmitLearningBoxExamResultRequest request) async {

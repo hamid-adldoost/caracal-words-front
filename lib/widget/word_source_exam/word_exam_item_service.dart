@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:caracal_words/service/id_repository.dart';
+import 'package:caracal_words/utility/id_repository.dart';
 import 'package:http/http.dart' as http;
 
 Future<WordExamItem> fetchWordFromLearningBox(
