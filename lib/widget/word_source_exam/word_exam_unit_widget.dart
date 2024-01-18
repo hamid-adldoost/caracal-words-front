@@ -34,7 +34,7 @@ class WordExamUnitWidget extends GetView<WordSourceExamController> {
       ),
       body: Obx(
         () => controller.loading.value
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: Column(
@@ -44,13 +44,13 @@ class WordExamUnitWidget extends GetView<WordSourceExamController> {
                           horizontal: 15.0, vertical: 5),
                       child: LinearPercentIndicator(
                         center: Text(
-                          '${controller.examIndex.value + 1}/${controller.learningBoxSize.value}',
+                          '${controller.examIndex.value + 1}/${controller.examItem.value.learningBoxSize}',
                           style: const TextStyle(
                             fontSize: 12,
                           ),
                         ),
                         percent: ((controller.examIndex.value + 1) /
-                            controller.learningBoxSize.value),
+                            controller.examItem.value.learningBoxSize),
                         backgroundColor: Colors.blueGrey,
                         lineHeight: 15,
                         progressColor: Colors.green,
@@ -67,12 +67,49 @@ class WordExamUnitWidget extends GetView<WordSourceExamController> {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 10.0),
                               child: Container(
-                                padding: const EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
                                     color: Colors.blue,
                                     borderRadius: BorderRadius.circular(15)),
                                 child: Column(
                                   children: [
+                                    Container(
+                                      padding: const EdgeInsets.only(bottom: 10),
+                                      alignment: Alignment.topLeft,
+                                      height: 20,
+                                      child: Row(
+                                        children: [
+                                          ListView.builder(
+                                            shrinkWrap: true,
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: controller
+                                                .examItem.value.correctAnswerCount,
+                                            itemBuilder: (context, index) {
+                                              return const Icon(
+                                                Icons.check,
+                                                weight: 700,
+                                                color:
+                                                    Color.fromRGBO(100, 200, 150, 1),
+                                              );
+                                            },
+                                          ),
+                                          ListView.builder(
+                                            shrinkWrap: true,
+                                            scrollDirection: Axis.horizontal,
+                                            itemCount: controller
+                                                .examItem.value.inCorrectAnswerCount,
+                                            itemBuilder: (context, index) {
+                                              return const Icon(
+                                                Icons.close,
+                                                weight: 700,
+                                                color:
+                                                    Color.fromRGBO(220, 50, 50, 1),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                     Text(
                                       controller.examItem.value.originalWord,
                                       textAlign: TextAlign.center,
@@ -91,12 +128,12 @@ class WordExamUnitWidget extends GetView<WordSourceExamController> {
                                                   0) /
                                               10),
                                           progressColor: Colors.greenAccent,
-                                          backgroundColor: Colors.white,
+                                          backgroundColor: Colors.red,
                                           width: 150,
-                                          lineHeight: 20,
-                                          center: Text(
-                                            "${'score : ${controller.examItem.value.score}'} / 10",
-                                          ),
+                                          lineHeight: 5,
+                                          // center: Text(
+                                          //   "${'score : ${controller.examItem.value.score}'} / 10",
+                                          // ),
                                         ),
                                       ],
                                     ),

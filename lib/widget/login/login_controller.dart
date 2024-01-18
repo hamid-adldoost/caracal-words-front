@@ -6,7 +6,34 @@ class LoginController extends GetxController {
   var username = TextEditingController();
   var password = TextEditingController();
 
+  final formKey = GlobalKey<FormState>();
+
+  validateUsername() {
+    if(GetUtils.isNullOrBlank(username) == null) {
+      return 'username is not valid';
+    }
+    return null;
+  }
+
+  validatePassword() {
+    if(GetUtils.isNullOrBlank(password) == null) {
+      return 'password is not valid';
+    }
+    return null;
+  }
+
+
   void submitLoginForm() {
+    print('login clicked');
+    if(!formKey.currentState!.validate()) {
+      print('not valid form');
+      Get.showSnackbar(const GetSnackBar(
+        title: 'Error',
+        message: 'Form Validation Failed',
+        duration: Duration(seconds: 2),
+        backgroundColor: Colors.red,
+      ));
+    }
     login(LoginRequest(username: username.text, password: password.text))
         .then((value) => {
               print('login done'),
@@ -20,5 +47,11 @@ class LoginController extends GetxController {
       ));
       throw Exception();
     });
+  }
+
+  @override
+  void onClose() {
+    username.dispose();
+    password.dispose();
   }
 }

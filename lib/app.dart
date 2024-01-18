@@ -14,7 +14,22 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: true,
       defaultTransition: Transition.fade,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        appBarTheme: const AppBarTheme(
+          actionsIconTheme: IconThemeData(
+            color: Colors.white,
+          ),
+          backgroundColor: Colors.blueAccent,
+        ),
+        primarySwatch: Colors.amber,
+        buttonTheme: ButtonTheme.of(context).copyWith(
+          textTheme: ButtonTextTheme.primary,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+        ),
+        textTheme: const TextTheme(
+          titleSmall: TextStyle(color: Colors.black),
+          bodySmall: TextStyle(color: Colors.black),
+        ),
         useMaterial3: true,
       ),
       initialRoute: AppRoutes.Splash,

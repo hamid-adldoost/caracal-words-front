@@ -1,4 +1,3 @@
-import 'package:caracal_words/widget/exam_passed/exam_passed_widget.dart';
 import 'package:caracal_words/widget/word_source_exam/submit-exam-result.dart';
 import 'package:caracal_words/widget/word_source_exam/word_exam_item_service.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +11,6 @@ class WordSourceExamController extends GetxController {
 
   var result = false.obs;
   var loading = false.obs;
-  var learningBoxSize = 10.obs;
 
   late Rx<WordExamItem> examItem;
   final choiceModeValues = [
@@ -37,23 +35,24 @@ class WordSourceExamController extends GetxController {
 
   fetchNextExamItem() {
     setStatus(0);
-    if (examIndex.value + 1 < learningBoxSize.value) {
+    if (examIndex.value + 1 < examItem.value.learningBoxSize) {
       increaseExamIndex();
       fetchWordFromLearningBox(
         userWordSourceId,
         examIndex.value,
-      ).then((value) => examItem.value = value);
+      ).then((value) => {
+            examItem.value = value,
+          });
     } else {
       print('finished the learning box');
-      Get.snackbar('caracal', 'learning finished');
-      Get.to(const ExamPassedWidget());
+      Get.offAndToNamed('/examPassed');
     }
     update();
   }
 
   Color setChoiceColor(String choiceValue) {
     if (examUnitStatus.value == 0) {
-      return Colors.grey;
+      return Colors.blueGrey;
     } else {
       if (choiceValue == examItem.value.destinationLanguageMeaning) {
         return Colors.lightGreen;
@@ -76,9 +75,7 @@ class WordSourceExamController extends GetxController {
         userWordSource: userWordSourceId,
         wordId: examItem.value.wordId,
         result: result.value,
-      )).then((value) => {
-            learningBoxSize = value.learningBoxSize.obs,
-          });
+      ));
     }
   }
 
@@ -94,24 +91,19 @@ class WordSourceExamController extends GetxController {
     result.value = res;
   }
 
-  setLearningBoxSize(int size) {
-    learningBoxSize.value = size;
-  }
+  // setLearningBoxSize(int size) {
+  //   learningBoxSize.value = size;
+  // }
 
   increaseExamIndex() {
-    print('increasing..');
-    print('exam index before increase : ${examIndex.value}');
     examIndex.value++;
-    print('exam index : ${examIndex.value}');
   }
 
   void gotoLoginPage() {
-    print('i am here so going to logout');
-    // Get.offAllNamed('/login');
+    Get.offAllNamed('/login');
   }
 
   void showExampleSnakbar() {
-    print('showing snakbar');
     Get.showSnackbar(GetSnackBar(
       title: 'example',
       message: examItem.value.examples,

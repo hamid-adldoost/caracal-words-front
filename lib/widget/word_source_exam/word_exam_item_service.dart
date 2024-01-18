@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:caracal_words/utility/id_repository.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 Future<WordExamItem> fetchWordFromLearningBox(
@@ -31,6 +32,7 @@ WordExamItem parseWordExamItem(String responseBody) {
     Map<String, dynamic> map = jsonDecode(responseBody) as Map<String, dynamic>;
     return WordExamItem.fromJson(map);
   } catch (e) {
+    Get.showSnackbar(GetSnackBar(title: 'error', message: e.toString(), duration: const Duration(seconds: 5),));
     return const WordExamItem(
         sourceId: '1',
         wordId: '1',
@@ -40,6 +42,8 @@ WordExamItem parseWordExamItem(String responseBody) {
         examples: '1',
         pronunciation: '1',
         score: 1,
+        correctAnswerCount: 1,
+        inCorrectAnswerCount: 1,
         learningBoxSize: 1,
         choices: ['a', 'b', 'c', 'd']);
   }
@@ -54,6 +58,8 @@ class WordExamItem {
   final String examples;
   final String pronunciation;
   final int score;
+  final int correctAnswerCount;
+  final int inCorrectAnswerCount;
   final int learningBoxSize;
   final List<String> choices;
 
@@ -66,6 +72,8 @@ class WordExamItem {
     required this.examples,
     required this.pronunciation,
     required this.score,
+    required this.correctAnswerCount,
+    required this.inCorrectAnswerCount,
     required this.learningBoxSize,
     required this.choices,
   });
@@ -80,6 +88,8 @@ class WordExamItem {
       examples: json['examples'].toString(),
       pronunciation: (json['pronunciation'] ?? '').toString(),
       score: json['score'] as int,
+      correctAnswerCount: json['correctAnswerCount'] as int,
+      inCorrectAnswerCount: json['inCorrectAnswerCount'] as int,
       learningBoxSize: json['learningBoxSize'] as int,
       choices: List<String>.from(json['choices']),
     );

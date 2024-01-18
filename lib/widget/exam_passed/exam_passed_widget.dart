@@ -8,13 +8,34 @@ class ExamPassedWidget extends GetView<ExamPassedController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: const Text(
-          'Exam Finished',
-          style: TextStyle(
-            fontSize: 50,
+      appBar: AppBar(
+        title: const Text('exam finished'),
+      ),
+      body: Column(
+        children: [
+          Container(
+            alignment: Alignment.center,
+            child: Column(
+              children: [
+                const Text(
+                  'Exam Finished',
+                  style: TextStyle(
+                    fontSize: 30,
+                  ),
+                ),
+                ElevatedButton(
+                  style: const ButtonStyle(
+                    alignment: Alignment.center,
+                  ),
+                  onPressed: () {
+                    controller.gotoExamPage();
+                  },
+                  child: const Text('Try another exam!'),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

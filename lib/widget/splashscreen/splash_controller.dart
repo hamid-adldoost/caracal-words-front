@@ -5,7 +5,8 @@ import 'package:get/get.dart';
 
 class SplashController extends GetxController {
   moveToLoginPage() {
-    Timer.periodic(const Duration(seconds: 3), (timer) => Get.offNamed(AppRoutes.Login)
-    );
+    Future.delayed(const Duration(seconds: 2), () {
+      Get.offNamed(AppRoutes.Login);
+    });
   }
 }

@@ -11,7 +11,17 @@ class SplashScreen extends GetView<SplashController> {
     return Scaffold(
       appBar: AppBar(title: const Text('Welcome to Caracal...')),
       body: const Center(
-        child: Text('Welcome to Caracal...'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image(
+              image: AssetImage('/images/caracal-icon-final.png'),
+              width: 250,
+            ),
+            Text('Welcome to Caracal...'),
+          ],
+        ),
       ),
     );
   }
